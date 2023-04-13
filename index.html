@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>CSE 204: Final Project</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="style.css">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Acme&family=Montserrat&display=swap" rel="stylesheet">
+    </head>
+    <body>
+                <h1>Abby and Kyra's Weather App</h1>
+                <form id = "lookup">
+                   
+                    <div class="form-inline">
+                        <label for = "loclookup">Look up a location by City or Zip Code:</label>
+                        <div class="input-group">
+                            <input type="text" name="location" id="loclookup" class="form-control"/>
+                          <div class="input-group-addon">
+                            
+                            <input type="submit" class="button" value="Look Up">
+                          </div>
+                         
+                        </div>
+                      </div>
+                </form>
+                
+
+                <!-- <form id="lookup">
+                    <div class = "input-group">
+                        
+                        <label for = "loclookup">Look up a location by typing in the name of a City or a Zip Code:</label>
+                        <input type="text" name="location" id="loclookup" class="form-control"/>
+                        <span class = "input-group-addon">
+                            <input type="submit" class="button" value="Look Up">
+                        </span>
+                        
+                    </div>
+                </form> -->
+
+                <span class = "div1">
+                    <button id="current">Current Location</button> 
+                </span>
+                
+       
+        <div id="displays">
+            <!--for the current locations that are being displayed-->
+        </div>
+
+
+        <script>
+
+            var key = "87ce82f4a10b97607b1ae57606af30e2";
+
+            //shown locations is an array to hold the locations that we have shown on the screen currently
+            var shownlocations = [];
+            console.log(shownlocations);
+            document.getElementById("current").addEventListener('click', currentLocation);
+            document.getElementById("lookup").addEventListener('submit', lookupLocation);
+            //we can use the IP address of the user to lookup their current location and show the weather for that location if they click this button
+            function currentLocation () {
+                if (shownlocations.length > 2) {
+                    alert("Delete a location before adding another. 3 locations maximum.");
+                }
+                else{
+                    console.log("implement current location function");
+                    var xhttp1 = new XMLHttpRequest();
+                    data= {
+                        access_key: key,
+                        query: 'fetch:ip',
+                    }
+                // Response handler
+                    xhttp1.onreadystatechange = function() {
+
+                    // Wait for readyState = 4 & 200 response
+                    if (this.readyState == 4 && this.status == 200) {
+
+                        // parse JSON response
+                        var response = JSON.parse(this.responseText);
+
+                        console.log(response);
+
+                        var duplicate = false;
+                        for (i=0; i<shownlocations.length; i++){
+                                if (shownlocations[i]===response.location.name){
+                                    alert("You have already saved this location. Try another one.");
+                                    duplicate = true;
+                                    event.preventDefault;
+                                }
+                            }
+
+                        if (!duplicate){
+                            var newdiv=document.createElement('div');
+                            newdiv.className = "row onelocation";
+                            var coldiv1 = document.createElement('div');
+                            coldiv1.className = "col-sm-6";
+                            var coldiv2 = document.createElement('div');
+                            coldiv2.className = "col-sm-6";
+
+                            var buttondiv = document.createElement('div');
+                            buttondiv.className = "row";
+                            var refreshbutton=document.createElement('button');
+                            refreshbutton.innerHTML="Refresh Location";
+                            newdiv.appendChild(refreshbutton);
+
+                           
+                            
+                            
+                            var locationdiv = document.createElement('div');
+                            locationdiv.className = "row";
+                            locationdiv.id = "locationtext";
+                            var tempdiv = document.createElement('div');
+                            tempdiv.className = "row";
+                            var timediv = document.createElement('div');
+                            timediv.className = "row";
+                            var weatherdiv = document.createElement('div');
+                            weatherdiv.className = "row";
+
+                            
+
+                            var location = document.createElement('h3');
+                            var temperature=document.createElement('h2');
+                            var time=document.createElement('h3');
+                            var weather=document.createElement('img');
+
+                            location.innerHTML= response.location.name + ", " + response.location.region + ", " + response.location.country;
+                            var today = new Date();
+                            var ampm = "am";
+                            var hours;
+                            var minutes;
+                            if (today.getHours()>=12){
+                                ampm = "pm";
+                                if(today.getHours()>12){
+                                    hours = today.getHours() - 12;
+                                }
+                            }
+                            if (today.getHours()<=12) {
+                                hours = today.getHours();
+                            }
+                            if(today.getMinutes() < 10){
+                            minutes = '0' + today.getMinutes();
+                            }
+                            else{
+                                minutes = today.getMinutes();
+                            }
+                            var currenttime = hours + ":" + minutes + ":" + today.getSeconds() + " " + ampm;
+                            time.innerHTML=currenttime;
+                            temperature.innerHTML=response.current.temperature + "°F";
+                            weather.src=response.current.weather_icons;
+
+                            newdiv.appendChild(coldiv1);
+                            newdiv.appendChild(coldiv2);
+
+                            buttondiv.appendChild(refreshbutton);
+                            coldiv1.appendChild(buttondiv);
+                            coldiv1.appendChild(locationdiv);
+                            locationdiv.appendChild(location);
+                            coldiv1.appendChild(tempdiv);
+                            tempdiv.appendChild(temperature);
+                            coldiv1.appendChild(timediv);
+                            timediv.appendChild(time);
+                            coldiv2.appendChild(weatherdiv);
+                            weatherdiv.appendChild(weather);
+
+                            var exbutton=document.createElement('button');
+                            exbutton.id = "exbutton";
+                            var ex=document.createElement('i');
+                            ex.className="fa fa-times fa-2x";
+                            exbutton.appendChild(ex);
+                            newdiv.appendChild(exbutton);
+
+                            ex.addEventListener ('click', (event) => {
+                                console.log(event.target.parentNode.parentNode);
+                                event.target.parentNode.parentNode.remove();
+                                for (i=0; i<shownlocations.length; i++){
+                                    if (shownlocations[i]===response.location.name){
+                                        shownlocations.splice(i, 1);
+                                    }
+                                }
+                            })
+
+                            document.getElementById("displays").appendChild(newdiv);
+                           
+                            refreshbutton.addEventListener ('click', (event) => {
+                                console.log("refreshing");
+                                var xhttp3 = new XMLHttpRequest();
+                                xhttp3.onreadystatechange = function () {
+                                    if (this.readyState == 4 && this.status == 200) {
+                                        temperature.innerHTML=response.current.temperature + "°F";
+                                        weather.innerHTML=response.current.weather_icons;
+                                        var today = new Date();
+                                        var ampm = "am";
+                                        var hours;
+                                        var minutes;
+                                        if (today.getHours()>=12){
+                                            ampm = "pm";
+                                            if(today.getHours()>12){
+                                                hours = today.getHours() - 12;
+                                            }
+                                        }
+                                        if (today.getHours()<=12) {
+                                            hours = today.getHours();
+                                        }
+                                        if(today.getMinutes() < 10){
+                                        minutes = '0' + today.getMinutes();
+                                        }
+                                        else{
+                                            minutes = today.getMinutes();
+                                        }
+                                        var currenttime = hours + ":" + minutes + ":" + today.getSeconds() + " " + ampm;
+                                        time.innerHTML=currenttime;
+                                        console.log("refreshed time" + response.current.observation_time)
+                                    }
+                                    else if (this.readyState ==4) {
+                                        console.log(this.responseText);
+                                    }
+                                };
+                                xhttp3.open("GET", "https://api.weatherstack.com/current?access_key=87ce82f4a10b97607b1ae57606af30e2&query=fetch:ip&units=f", true);
+                                xhttp3.send();
+                            })
+                            
+                            shownlocations.push(response.location.name);
+                            }
+                        
+
+                    } else if (this.readyState == 4) {
+
+                        // this.status !== 200, error from server
+                        console.log(this.responseText);
+
+                    }
+                };
+                xhttp1.open("GET", "https://api.weatherstack.com/current?access_key=87ce82f4a10b97607b1ae57606af30e2&query=fetch:ip&units=f", true);
+                xhttp1.send();
+                }
+                
+
+            }
+
+            function lookupLocation (event) {
+                if (shownlocations.length > 2) {
+                    alert("Delete a location before adding another. 3 locations maximum.");
+                    event.preventDefault();
+                }
+                else{
+                    console.log("implement lookup location function");
+                    event.preventDefault();
+                    var data = {
+                        text:document.getElementById("loclookup").value
+                    }
+                    console.log(data.text);
+                    var xhttp2 = new XMLHttpRequest();
+                // Response handler
+                    xhttp2.onreadystatechange = function() {
+
+                    // Wait for readyState = 4 & 200 response
+                    if (this.readyState == 4 && this.status == 200) {
+
+                        // parse JSON response
+                        var response = JSON.parse(this.responseText);
+
+                        console.log(response);
+                        var duplicate = false;
+                        for (i=0; i<shownlocations.length; i++){
+                                if (shownlocations[i]===response.location.name){
+                                    alert("You have already saved this location. Try another one.");
+                                    duplicate = true;
+                                    event.preventDefault;
+                                }
+                            }
+                        
+                        if (!duplicate){
+                            var newdiv=document.createElement('div');
+                            newdiv.className = "row onelocation";
+                            var coldiv1 = document.createElement('div');
+                            coldiv1.className = "col-sm-6";
+                            var coldiv2 = document.createElement('div');
+                            coldiv2.className = "col-sm-6";
+
+                            var buttondiv = document.createElement('div');
+                            buttondiv.className = "row";
+                            var refreshbutton=document.createElement('button');
+                            refreshbutton.innerHTML="Refresh Location";
+                            newdiv.appendChild(refreshbutton);
+
+                            
+                            
+                            
+                            var locationdiv = document.createElement('div');
+                            locationdiv.className = "row";
+                            locationdiv.id = "locationtext";
+                            var tempdiv = document.createElement('div');
+                            tempdiv.className = "row";
+                            var timediv = document.createElement('div');
+                            timediv.className = "row";
+                            var weatherdiv = document.createElement('div');
+                            weatherdiv.className = "row";
+
+                           
+
+                            var location = document.createElement('h3');
+                            var temperature=document.createElement('h2');
+                            var time=document.createElement('h3');
+                            var weather=document.createElement('img');
+
+                            location.innerHTML= response.location.name + ", " + response.location.region + ", " + response.location.country;
+                            var today = new Date();
+                            var ampm = "am";
+                            var hours;
+                            var minutes;
+                            if (today.getHours()>=12){
+                                ampm = "pm";
+                                if(today.getHours()>12){
+                                    hours = today.getHours() - 12;
+                                }
+                            }
+                            if (today.getHours()<=12) {
+                                hours = today.getHours();
+                            }
+                            if(today.getMinutes() < 10){
+                            minutes = '0' + today.getMinutes();
+                            }
+                            else{
+                                minutes = today.getMinutes();
+                            }
+                            var currenttime = hours + ":" + minutes + ":" + today.getSeconds() + " " + ampm;
+                            time.innerHTML=currenttime;
+                            temperature.innerHTML=response.current.temperature + "°F";
+                            weather.src=response.current.weather_icons;
+
+                            newdiv.appendChild(coldiv1);
+                            newdiv.appendChild(coldiv2);
+
+                            buttondiv.appendChild(refreshbutton);
+                            coldiv1.appendChild(buttondiv);
+                            coldiv1.appendChild(locationdiv);
+                            locationdiv.appendChild(location);
+                            coldiv1.appendChild(tempdiv);
+                            tempdiv.appendChild(temperature);
+                            coldiv1.appendChild(timediv);
+                            timediv.appendChild(time);
+                            coldiv2.appendChild(weatherdiv);
+                            weatherdiv.appendChild(weather);
+
+                            var exbutton=document.createElement('button');
+                            var ex=document.createElement('i');
+                            exbutton.id = "exbutton";
+                            ex.className="fa fa-times fa-2x";
+                            exbutton.appendChild(ex);
+                            newdiv.appendChild(exbutton);
+
+                            document.getElementById("displays").appendChild(newdiv);
+                            
+                            refreshbutton.addEventListener ('click', (event) => {
+                                console.log("refreshing");
+                                var xhttp4 = new XMLHttpRequest();
+                                xhttp4.onreadystatechange = function () {
+                                    if (this.readyState == 4 && this.status == 200) {
+                                        temperature.innerHTML=response.current.temperature + "°F";
+                                        weather.innerHTML=response.current.weather_icons;
+                                        var today = new Date();
+                                        var ampm = "am";
+                                        var hours;
+                                        var minutes;
+                                        if (today.getHours()>=12){
+                                            ampm = "pm";
+                                            if(today.getHours()>12){
+                                                hours = today.getHours() - 12;
+                                            }
+                                        }
+                                        if (today.getHours()<=12) {
+                                            hours = today.getHours();
+                                        }
+                                        if(today.getMinutes() < 10){
+                                        minutes = '0' + today.getMinutes();
+                                        }
+                                        else{
+                                            minutes = today.getMinutes();
+                                        }
+                                        var currenttime = hours + ":" + minutes + ":" + today.getSeconds() + " " + ampm;
+                                        time.innerHTML=currenttime;
+                                    }
+                                    else if (this.readyState ==4) {
+                                        console.log(this.responseText);
+                                    }
+                                };
+                                xhttp4.open("GET", "https://api.weatherstack.com/current?access_key=87ce82f4a10b97607b1ae57606af30e2&query=" + data.text + "&units=f", true);
+                                xhttp4.send();
+                                console.log(response);
+                            })
+                            ex.addEventListener ('click', (event) => {
+                                console.log(event.target.parentNode.parentNode);
+                                event.target.parentNode.parentNode.remove();
+                                for (i=0; i<shownlocations.length; i++){
+                                    if (shownlocations[i]===response.location.name){
+                                        shownlocations.splice(i, 1);
+                                    }
+                                }
+
+                            })
+                            shownlocations.push(response.location.name);
+                            }
+                        
+                        
+
+                    } else if (this.readyState == 4) {
+
+                        // this.status !== 200, error from server
+                        console.log(this.responseText);
+
+                    }
+                };
+
+                xhttp2.open("GET", "https://api.weatherstack.com/current?access_key=87ce82f4a10b97607b1ae57606af30e2&query=" + data.text + "&units=f", true);
+                xhttp2.send();
+                }
+                
+
+                document.getElementById("lookup").reset();
+
+            }
+
+
+        </script>
+
+<footer class="container-fluid">
+    <p>For more weather information, visit <a href= "https://weather.com/">The Weather Channel</a></p>
+</footer>
+
+    </body>
+</html>
