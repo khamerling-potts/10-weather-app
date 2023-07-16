@@ -41,7 +41,7 @@
 
         <script>
 
-            var key = "55d5f40c0e1a6b6bf033ee4965041514";
+            var key = "3b8979c5c1714c929db3bf4eff3f8a62";
 
             //shown locations is an array to hold the locations that we have shown on the screen currently
             var shownlocations = [];
@@ -236,10 +236,10 @@
                 else{
                     console.log("implement lookup location function");
                     event.preventDefault();
-                    var data = {
+                    var inputData = {
                         text:document.getElementById("loclookup").value
                     }
-                    console.log(data.text);
+                    console.log(inputData.text);
                     var xhttp2 = new XMLHttpRequest();
                 // Response handler
                     xhttp2.onreadystatechange = function() {
@@ -253,7 +253,7 @@
                         console.log(response);
                         var duplicate = false;
                         for (i=0; i<shownlocations.length; i++){
-                                if (shownlocations[i]===response.location.name){
+                                if (shownlocations[i]===response.data[0].city_name){
                                     alert("You have already saved this location. Try another one.");
                                     duplicate = true;
                                     event.preventDefault;
@@ -294,7 +294,7 @@
                             var time=document.createElement('h3');
                             var weather=document.createElement('img');
 
-                            location.innerHTML= response.location.name + ", " + response.location.region + ", " + response.location.country;
+                            location.innerHTML= response.data[0].city_name + ", " + response.data[0].state_code + ", " + response.data[0].country_code;
                             var today = new Date();
                             var ampm = "am";
                             var hours;
@@ -316,8 +316,8 @@
                             }
                             var currenttime = hours + ":" + minutes + ":" + today.getSeconds() + " " + ampm;
                             time.innerHTML=currenttime;
-                            temperature.innerHTML=response.current.temperature + "°F";
-                            weather.src=response.current.weather_icons;
+                            temperature.innerHTML=response.data[0].app_temp + "°F";
+                            weather.src= "./icons/" + response.data[0].weather.icon + ".png";
 
                             newdiv.appendChild(coldiv1);
                             newdiv.appendChild(coldiv2);
@@ -346,9 +346,9 @@
                                 console.log("refreshing");
                                 var xhttp4 = new XMLHttpRequest();
                                 xhttp4.onreadystatechange = function () {
-                                    if (this.readyState == 4 && this.status == 200) {
-                                        temperature.innerHTML=response.current.temperature + "°F";
-                                        weather.innerHTML=response.current.weather_icons;
+                                    if (this.readyState == 4 && this.status == 200) { /*ADD ANOTHER RESPONSE VARIABLE HERE THAT GETS REFRESHED??*/
+                                        temperature.innerHTML=response.data[0].app_temp + "°F";
+                                        weather.src="./icons/" + response.data[0].weather.icon + ".png";
                                         var today = new Date();
                                         var ampm = "am";
                                         var hours;
@@ -375,7 +375,14 @@
                                         console.log(this.responseText);
                                     }
                                 };
-                                xhttp4.open("GET", "https://api.weatherstack.com/current?access_key=55d5f40c0e1a6b6bf033ee4965041514&query=" + data.text + "&units=f", true);
+                                if (!isNaN(inputData.text)){
+                                    xhttp4.open("GET", "https://api.weatherbit.io/v2.0/current?&postal_code=" + inputData.text + "&key=3b8979c5c1714c929db3bf4eff3f8a62&units=I", true);
+                                }
+                                else{
+                                    xhttp4.open("GET", "https://api.weatherbit.io/v2.0/current?&city=" + inputData.text + "&key=3b8979c5c1714c929db3bf4eff3f8a62&units=I", true);
+                                }
+                                
+                                /*old api: https://api.weatherstack.com/current?access_key=55d5f40c0e1a6b6bf033ee4965041514&query=" + data.text + "&units=f"*/
                                 xhttp4.send();
                                 console.log(response);
                             })
@@ -383,14 +390,14 @@
                                 console.log(event.target.parentNode.parentNode);
                                 event.target.parentNode.parentNode.remove();
                                 for (i=0; i<shownlocations.length; i++){
-                                    if (shownlocations[i]===response.location.name){
+                                    if (shownlocations[i]===response.data[0].city_name){
                                         shownlocations.splice(i, 1);
                                     }
                                 }
 
                             })
-                            shownlocations.push(response.location.name);
-                            }
+                            shownlocations.push(response.data[0].city_name);
+                        }
                         
                         
 
@@ -402,7 +409,13 @@
                     }
                 };
 
-                xhttp2.open("GET", "https://api.weatherstack.com/current?access_key=55d5f40c0e1a6b6bf033ee4965041514&query=" + data.text + "&units=f", true);
+                if (!isNaN(inputData.text)){
+                    xhttp2.open("GET", "https://api.weatherbit.io/v2.0/current?&postal_code=" + inputData.text + "&key=3b8979c5c1714c929db3bf4eff3f8a62&units=I", true);
+                }
+                else{
+                    xhttp2.open("GET", "https://api.weatherbit.io/v2.0/current?&city=" + inputData.text + "&key=3b8979c5c1714c929db3bf4eff3f8a62&units=I", true);
+                }
+                
                 xhttp2.send();
                 }
                 
